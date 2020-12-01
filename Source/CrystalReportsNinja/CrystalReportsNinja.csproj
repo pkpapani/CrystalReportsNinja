@@ -7,7 +7,7 @@
     <ProjectGuid>{A9BC6CCB-AFD4-4B80-BDE0-DBC99C8D51C2}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>CrystalReportsNinja</RootNamespace>
-    <AssemblyName>CrystalReportsNinja</AssemblyName>
+    <AssemblyName>crexport</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
