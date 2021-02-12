@@ -1,7 +1,8 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using System;
-using System.Collections.Generic;
+using System.Globalization;
+using CeLocale = CrystalDecisions.ReportAppServer.DataDefModel.CeLocale;
 
 namespace CrystalReportsNinja
 {
@@ -42,6 +43,15 @@ namespace CrystalReportsNinja
 
             if (_sourceFilename.LastIndexOf(".rpt") == -1)
                 throw new Exception("Invalid Crystal Reports file");
+
+            if (ReportArguments.LCID.HasValue)
+            {
+                CultureInfo locale = CultureInfo.GetCultureInfo(ReportArguments.LCID.Value);
+                Console.WriteLine("Using locale {0} {1}", locale.LCID, locale.EnglishName);
+                _reportDoc.ReportClientDocument.LocaleID = (CeLocale)locale.LCID;
+                _reportDoc.ReportClientDocument.PreferredViewingLocaleID = (CeLocale)locale.LCID;
+                _reportDoc.ReportClientDocument.ProductLocaleID = (CeLocale)locale.LCID;
+            }
 
             _reportDoc.Load(_sourceFilename, OpenReportMethod.OpenReportByDefault);
             _logger.Write(string.Format("Report loaded successfully"));

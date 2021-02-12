@@ -1,7 +1,5 @@
-﻿using CrystalDecisions.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace CrystalReportsNinja
 {
@@ -30,10 +28,11 @@ namespace CrystalReportsNinja
             Console.WriteLine("-N Printer Name (Network printer : \\\\PrintServer\\Printername or Local printer : printername)");
             Console.WriteLine("-C Number of copy to be printed");
             Console.WriteLine("-l To write a log file. filename ninja-yyyyMMddHHmmss.log");
+            Console.WriteLine("-LC specify LCID for report locale");
             Console.WriteLine("---------------------------------------------------");
             Console.WriteLine("\nExample: C:\\> CrystalReportsNinja -U user1 -P mypass -S Server01 -D \"ExtremeDB\" -F c:\\test.rpt -O d:\\test.pdf -a \"Supplier Name:Active Outdoors\" -a \"Date Range:(12-01-2001,12-04-2002)\"");
             Console.WriteLine("Learn more in http://www.rainforestnet.com/crystal-reports-exporter/");
-            
+
         }
 
         /// <summary>

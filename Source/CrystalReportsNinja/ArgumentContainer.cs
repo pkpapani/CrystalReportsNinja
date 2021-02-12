@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrystalReportsNinja
 {
@@ -13,37 +11,37 @@ namespace CrystalReportsNinja
         /// -U Report database login username (mandatory unless integrated security login)
         /// </summary>
         public string UserName { get; set; }
-        
+
         /// <summary>
         /// -P Report database login password (mandatory unless integrated security login)
         /// </summary>
-        public string Password { get; set; }                        
-        
+        public string Password { get; set; }
+
         /// <summary>
         /// -F Crystal Report path and filename (mandatory)
         /// </summary>
-        public string ReportPath { get; set; }                      
-        
+        public string ReportPath { get; set; }
+
         /// <summary>
         /// -O Output file path and filename 
         /// </summary>
-        public string OutputPath { get; set; }                      
-        
+        public string OutputPath { get; set; }
+
         /// <summary>
         /// -S Server name of specified crystal Report (mandatory)
         /// </summary>
-        public string ServerName { get; set; }                      
-        
+        public string ServerName { get; set; }
+
         /// <summary>
         /// -D Database name of specified crystal Report
         /// </summary>
-        public string DatabaseName { get; set; }                      
-        
+        public string DatabaseName { get; set; }
+
         /// <summary>
         /// -E Crystal Report exported format (pdf,xls,htm). "print" to print to printer
         /// </summary>
-        public string OutputFormat { get; set; }                      
-        
+        public string OutputFormat { get; set; }
+
         /// <summary>
         /// -a Report Parameter set (small letter p). eg:{customer : "Microsoft Corporation"} or {customer : "Microsoft Corporation" | "Google Inc"}
         /// </summary>
@@ -60,7 +58,7 @@ namespace CrystalReportsNinja
         /// -C number of copy to be printed out
         /// </summary>
         public int PrintCopy { get; set; }
-        
+
         /// <summary>
         /// -I Printer name
         /// </summary>
@@ -69,21 +67,26 @@ namespace CrystalReportsNinja
         /// To display Help message
         /// </summary>
         public bool GetHelp { get; set; }
-        
+
         /// <summary>
         /// To produce log file
         /// </summary>
         public bool EnableLog { get; set; }
-        
+
         /// <summary>
         /// Email address to email to
         /// </summary>
         public string MailTo { get; set; }
-        
+
         /// <summary>
         /// To refresh report or not
         /// </summary>
         public bool Refresh { get; set; }
+
+        /// <summary>
+        /// The Locale ID to set in the ReportClientDocument
+        /// </summary>
+        public int? LCID { get; set; }
 
         public ArgumentContainer()
         {
@@ -141,6 +144,8 @@ namespace CrystalReportsNinja
                             ParameterCollection.Add(parameters[i + 1]);
                         else if (parameters[i].ToUpper() == "-TO")
                             MailTo = parameters[i + 1];
+                        else if (parameters[i].ToUpper() == "-LC")
+                            LCID = int.Parse(parameters[i + 1]);
                     }
                 }
 
