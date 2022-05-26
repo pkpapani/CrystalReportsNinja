@@ -63,17 +63,17 @@ namespace CrystalReportsNinja
         /// </summary>
         private void ProcessParameters()
         {
-            var paramCount = _reportDoc.ParameterFields.Count;
-            if (paramCount > 0)
+            ParameterCore paraCore = new ParameterCore(_logfilename, ReportArguments.ParameterCollection);
+            paraCore.ProcessRawParameters();
+
+            foreach (ParameterField pf in _reportDoc.ParameterFields)
             {
-                ParameterCore paraCore = new ParameterCore(_logfilename, ReportArguments.ParameterCollection);
-                paraCore.ProcessRawParameters();
-                var paramDefs = _reportDoc.DataDefinition.ParameterFields;
-                for (int i = 0; i < paramDefs.Count; i++)
-                {
-                    ParameterValues values = paraCore.GetParameterValues(paramDefs[i]);
-                    paramDefs[i].ApplyCurrentValues(values);
-                }
+                if (pf.ReportParameterType != ParameterType.QueryParameter &&
+                    pf.ReportParameterType != ParameterType.StoreProcedureParameter &&
+                    !string.IsNullOrEmpty(pf.ReportName)/* CR do not like setting value to a subreport parameter */) continue;
+
+                object value = paraCore.GetParameterValue(pf.Name);
+                _reportDoc.SetParameterValue(pf.Name, value);
             }
         }
 
@@ -312,9 +312,7 @@ namespace CrystalReportsNinja
             }
             catch (Exception ex)
             {
-                _logger.Write(string.Format("Exception: {0}", ex.Message));
-                _logger.Write(string.Format("Inner Exception: {0}", ex.InnerException));
-
+                _logger.Write(ex.ToString());
                 throw ex;
             }
             finally
