@@ -1,6 +1,7 @@
 ﻿using CrystalDecisions.CrystalReports.Engine;
 using CrystalDecisions.Shared;
 using System;
+using System.Data.SqlClient;
 using System.Globalization;
 using CeLocale = CrystalDecisions.ReportAppServer.DataDefModel.CeLocale;
 
@@ -157,30 +158,82 @@ namespace CrystalReportsNinja
 
             if (toRefresh)
             {
-                TableLogOnInfo logonInfo = new TableLogOnInfo();
-                foreach (Table table in _reportDoc.Database.Tables)
-                {
-                    if (server != null)
-                        logonInfo.ConnectionInfo.ServerName = server;
+                ApplyLogonToTables(_reportDoc.Database.Tables, server, database, username, password);
 
-                    if (database != null)
-                        logonInfo.ConnectionInfo.DatabaseName = database;
+                foreach (ReportDocument subreport in GetSubreports(_reportDoc))
+                    ApplyLogonToTables(subreport.Database.Tables, server, database, username, password);
 
-                    if (username == null && password == null)
-                        logonInfo.ConnectionInfo.IntegratedSecurity = true;
-                    else
-                    {
-                        if (username != null && username.Length > 0)
-                            logonInfo.ConnectionInfo.UserID = username;
-
-                        if (password == null) //to support blank password
-                            logonInfo.ConnectionInfo.Password = "";
-                        else
-                            logonInfo.ConnectionInfo.Password = password;
-                    }
-                    table.ApplyLogOnInfo(logonInfo);
-                }
                 Console.WriteLine("Database Login done");
+            }
+        }
+
+        private void ApplyLogonToTables(Tables tables, string server, string database, string username, string password)
+        {
+            foreach (Table table in tables)
+            {
+                var logonInfo = new TableLogOnInfo();
+
+                if (server != null)
+                    logonInfo.ConnectionInfo.ServerName = server;
+
+                if (database != null)
+                    logonInfo.ConnectionInfo.DatabaseName = database;
+
+                if (username == null && password == null)
+                    logonInfo.ConnectionInfo.IntegratedSecurity = true;
+                else
+                {
+                    if (username != null && username.Length > 0)
+                        logonInfo.ConnectionInfo.UserID = username;
+
+                    if (password == null) //to support blank password
+                        logonInfo.ConnectionInfo.Password = "";
+                    else
+                        logonInfo.ConnectionInfo.Password = password;
+                }
+                TestSqlConnection(logonInfo, table.Name);
+                table.ApplyLogOnInfo(logonInfo);
+            }
+        }
+
+        private void TestSqlConnection(TableLogOnInfo logonInfo, string tableName)
+        {
+            var info = logonInfo.ConnectionInfo;
+            var builder = new SqlConnectionStringBuilder
+            {
+                DataSource = info.ServerName,
+                InitialCatalog = info.DatabaseName,
+                IntegratedSecurity = info.IntegratedSecurity
+            };
+
+            if (!info.IntegratedSecurity)
+            {
+                builder.UserID = info.UserID;
+                builder.Password = info.Password;
+            }
+
+            _logger.Write(string.Format("Testing SQL connection for table '{0}' on server '{1}', database '{2}'.", tableName, info.ServerName, info.DatabaseName));
+
+            try
+            {
+                using (var conn = new SqlConnection(builder.ConnectionString))
+                    conn.Open();
+            }
+            catch (Exception ex)
+            {
+                _logger.Write(string.Format("SQL connection test failed for table '{0}': {1}", tableName, ex.Message));
+            }
+        }
+
+        private System.Collections.Generic.IEnumerable<ReportDocument> GetSubreports(ReportDocument reportDoc)
+        {
+            foreach (Section section in reportDoc.ReportDefinition.Sections)
+            {
+                foreach (ReportObject reportObject in section.ReportObjects)
+                {
+                    if (reportObject is SubreportObject subreportObject)
+                        yield return subreportObject.OpenSubreport(subreportObject.SubreportName);
+                }
             }
         }
 
